@@ -1,0 +1,7 @@
+[project]
+name = "pyau"
+version = "0.1.0"
+description = "Python Vulnerabilities audit made easy"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = []
