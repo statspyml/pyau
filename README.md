@@ -3,7 +3,7 @@
 [![Tests](https://github.com/statspyml/pyau/actions/workflows/test.yml/badge.svg)](https://github.com/statspyml/pyau/actions/workflows/test.yml)
 ![PyPI - Version](https://img.shields.io/pypi/v/pyvulscan?v=1)
 [![Python](https://img.shields.io/pypi/pyversions/pyvulscan)](https://pypi.org/project/pyvulscan/)
-[![License](https://img.shields.io/github/license/statspyml/pyau)](LICENSE)
+![GitHub License](https://img.shields.io/github/license/statspyml/pyau)
 [![Downloads](https://img.shields.io/pypi/dm/pyvulscan)](https://pypi.org/project/pyvulscan/)
 ![PyPI - Status](https://img.shields.io/pypi/status/pyvulscan)
 
