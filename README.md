@@ -1,7 +1,7 @@
 # pyvulscan
 
 [![Tests](https://github.com/statspyml/pyau/actions/workflows/test.yml/badge.svg)](https://github.com/statspyml/pyau/actions/workflows/test.yml)
-[![PyPI](https://img.shields.io/pypi/v/pyvulscan)](https://pypi.org/project/pyvulscan/)
+![PyPI - Version](https://img.shields.io/pypi/v/pyvulscan)
 [![Python](https://img.shields.io/pypi/pyversions/pyvulscan)](https://pypi.org/project/pyvulscan/)
 [![License](https://img.shields.io/github/license/statspyml/pyau)](LICENSE)
 [![Downloads](https://img.shields.io/pypi/dm/pyvulscan)](https://pypi.org/project/pyvulscan/)
