@@ -1,5 +1,11 @@
 # pyvulscan
 
+[![Tests](https://github.com/statspyml/pyau/actions/workflows/test.yml/badge.svg)](https://github.com/statspyml/pyau/actions/workflows/test.yml)
+[![PyPI](https://img.shields.io/pypi/v/pyvulscan)](https://pypi.org/project/pyvulscan/)
+[![Python](https://img.shields.io/pypi/pyversions/pyvulscan)](https://pypi.org/project/pyvulscan/)
+[![License](https://img.shields.io/github/license/statspyml/pyau)](LICENSE)
+[![Downloads](https://img.shields.io/pypi/dm/pyvulscan)](https://pypi.org/project/pyvulscan/)
+
 Vulnerability scanner for Python dependencies using the [OSV API](https://osv.dev/).
 
 Supports `uv.lock`, `poetry.lock`, `pyproject.toml`, and `requirements.txt` — no environment activation needed.
