@@ -3,7 +3,7 @@ name = "pyvulscan"
 version = "0.1.4"
 description = "Vulnerability scanner for Python dependencies using the OSV API"
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
 requires-python = ">=3.11"
 authors = [
   { name = "Rodrigo Polverari", email = "rodrigo.pp.toledo@gmail.com" },
