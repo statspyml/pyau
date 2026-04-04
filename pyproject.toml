@@ -8,6 +8,9 @@ requires-python = ">=3.11"
 authors = [
   { name = "Rodrigo Polverari", email = "rodrigo.pp.toledo@gmail.com" },
 ]
+maintainers = [
+  { name = "Rodrigo Polverari", email = "rodrigo.pp.toledo@gmail.com" },
+]
 keywords = ["security", "vulnerabilities", "dependencies", "osv", "audit"]
 classifiers = [
   "Development Status :: 3 - Alpha",
