@@ -4,7 +4,7 @@ import sys
 from pyau.osv.client import query_osv_batch
 from pyau.osv.processor import process_results
 from pyau.parsers import detect_and_parse
-from pyau.report import print_json_report, print_report
+from pyau.report import print_json_report, print_multiscan_json_report, print_multiscan_report, print_report
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -47,7 +47,42 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def build_multiscan_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="pyau multiscan",
+        description=(
+            "Scan multiple projects for vulnerabilities using a config file.\n\n"
+            "The config file lists directories to scan. Supported formats:\n"
+            "  .json  — list or {\"projects\": [...]}\n"
+            "  .yaml  — list or projects: [...]\n"
+            "  .py    — defines a top-level 'projects' list"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "config",
+        help="Path to config file (.json, .yaml/.yml, or .py)",
+    )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Output results as JSON",
+    )
+    parser.add_argument(
+        "--exit-code",
+        action="store_true",
+        help="Exit with code 1 if any vulnerabilities are found (useful in CI)",
+    )
+    return parser
+
+
 def main() -> None:
+    # Dispatch 'multiscan' subcommand before the normal parser so that the
+    # existing positional 'file' argument keeps working unchanged.
+    if len(sys.argv) > 1 and sys.argv[1] == "multiscan":
+        _run_multiscan(sys.argv[2:])
+        return
+
     parser = build_parser()
     args = parser.parse_args()
 
@@ -77,6 +112,29 @@ def main() -> None:
 
     # 5. CI-friendly exit code
     if args.exit_code and findings:
+        sys.exit(1)
+
+
+def _run_multiscan(argv: list[str]) -> None:
+    from pyau.multiscan import load_config, run_multiscan
+
+    parser = build_multiscan_parser()
+    args = parser.parse_args(argv)
+
+    projects = load_config(args.config)
+    if not projects:
+        print("No projects listed in config. Nothing to scan.")
+        sys.exit(0)
+
+    print(f"Multiscan: {len(projects)} project(s) configured.")
+    scan_results = run_multiscan(projects)
+
+    if args.json:
+        print_multiscan_json_report(scan_results)
+    else:
+        print_multiscan_report(scan_results)
+
+    if args.exit_code and any(r["vulnerabilities_found"] > 0 for r in scan_results):
         sys.exit(1)
 
 

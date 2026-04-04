@@ -1,0 +1,16 @@
+{
+  "projects": [
+    {
+      "path": "~/Documents/apate_free",
+      "name": "Apate Free"
+    },
+    {
+      "path": "~/Documents/pyau",
+      "name": "Pyau"
+    },
+    {
+      "path": "~/Documents/test_mcp_toolbox",
+      "name": "Test MCP Toolbox"
+    }
+  ]
+}

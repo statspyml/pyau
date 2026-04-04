@@ -1,0 +1,5 @@
+projects = [
+    {"path": "/path/to/project-a", "name": "Project A"},
+    {"path": "/path/to/project-b", "name": "Project B"},
+    {"path": "/path/to/project-c"},
+]
