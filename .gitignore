@@ -11,3 +11,5 @@ wheels/
 
 # Local MCP configuration (contains local paths)
 .mcp.json
+
+multiscan_example.json
