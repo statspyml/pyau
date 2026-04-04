@@ -1,7 +1,9 @@
 import json
 
+from pyau.severity import meets_threshold, severity_label
 
-def print_multiscan_report(scan_results: list[dict]) -> None:
+
+def print_multiscan_report(scan_results: list[dict], filter_threshold: str | None = None) -> None:
     total_projects = len(scan_results)
     total_vulns = sum(r["vulnerabilities_found"] for r in scan_results)
     errors = [r for r in scan_results if r["error"]]
@@ -31,27 +33,9 @@ def print_multiscan_report(scan_results: list[dict]) -> None:
 
         print("    " + "─" * 54)
         for f in result["findings"]:
-            aliases = ", ".join(f["aliases"]) if f["aliases"] else "—"
-            fixed = ", ".join(f.get("fixed_versions", [])) or "unknown"
+            _print_finding(f, indent=4)
 
-            sev = f["severity"]
-            if isinstance(sev, dict):
-                score = sev.get("score", "?")
-                label = sev.get("label", "UNKNOWN")
-                sev_type = sev.get("type", "")
-                score_str = f"{score} ({label})" if score not in ("N/A", "?") else label
-                sev_display = f"{score_str}  [{sev_type}]"
-            else:
-                sev_display = str(sev)
-
-            print(f"    Package  : {f['package']} {f['version']}")
-            print(f"    Vuln ID  : {f['vuln_id']}")
-            print(f"    Aliases  : {aliases}")
-            print(f"    Severity : {sev_display}")
-            print(f"    Fix in   : {fixed}")
-            print(f"    Summary  : {f['summary']}")
-            print("    " + "─" * 54)
-
+    _print_filter_section_multiscan(scan_results, filter_threshold)
     print()
 
 
@@ -59,7 +43,7 @@ def print_multiscan_json_report(scan_results: list[dict]) -> None:
     print(json.dumps(scan_results, indent=2))
 
 
-def print_report(findings: list[dict], packages: list[dict]) -> None:
+def print_report(findings: list[dict], packages: list[dict], filter_threshold: str | None = None) -> None:
     total_pkgs = len(packages)
     total_vulns = len(findings)
 
@@ -72,32 +56,90 @@ def print_report(findings: list[dict], packages: list[dict]) -> None:
 
     if not findings:
         print("\n  ✓ No known vulnerabilities found.\n")
+        _print_filter_section(findings, filter_threshold)
         return
 
     for f in findings:
-        aliases = ", ".join(f["aliases"]) if f["aliases"] else "—"
-        fixed = ", ".join(f.get("fixed_versions", [])) or "unknown"
+        print()
+        _print_finding(f, indent=2)
 
-        sev = f["severity"]
-        if isinstance(sev, dict):
-            score = sev.get("score", "?")
-            label = sev.get("label", "UNKNOWN")
-            sev_type = sev.get("type", "")
-            score_str = f"{score} ({label})" if score not in ("N/A", "?") else label
-            sev_display = f"{score_str}  [{sev_type}]"
-        else:
-            sev_display = str(sev)
-
-        print(f"\n  Package   : {f['package']} {f['version']}")
-        print(f"  Vuln ID   : {f['vuln_id']}")
-        print(f"  Aliases   : {aliases}")
-        print(f"  Severity  : {sev_display}")
-        print(f"  Fix in    : {fixed}")
-        print(f"  Summary   : {f['summary']}")
-        print("  " + "─" * 56)
-
+    _print_filter_section(findings, filter_threshold)
     print()
 
 
 def print_json_report(findings: list[dict]) -> None:
     print(json.dumps(findings, indent=2))
+
+
+# ── helpers ───────────────────────────────────────────────────────────────────
+
+def _print_finding(f: dict, indent: int = 2) -> None:
+    pad = " " * indent
+    aliases = ", ".join(f["aliases"]) if f["aliases"] else "—"
+    fixed = ", ".join(f.get("fixed_versions", [])) or "unknown"
+
+    sev = f["severity"]
+    if isinstance(sev, dict):
+        score = sev.get("score", "?")
+        label = sev.get("label", "UNKNOWN")
+        sev_type = sev.get("type", "")
+        score_str = f"{score} ({label})" if score not in ("N/A", "?") else label
+        sev_display = f"{score_str}  [{sev_type}]"
+    else:
+        sev_display = str(sev)
+
+    print(f"{pad}Package  : {f['package']} {f['version']}")
+    print(f"{pad}Vuln ID  : {f['vuln_id']}")
+    print(f"{pad}Aliases  : {aliases}")
+    print(f"{pad}Severity : {sev_display}")
+    print(f"{pad}Fix in   : {fixed}")
+    print(f"{pad}Summary  : {f['summary']}")
+    print(pad + "─" * (58 - indent))
+
+
+def _print_filter_section(findings: list[dict], threshold: str | None) -> None:
+    if threshold is None:
+        return
+
+    label = threshold.upper()
+    matched = [f for f in findings if meets_threshold(f, label)]
+
+    print("\n" + "═" * 60)
+    print(f"  Filter: {label} and above  ({len(matched)} finding(s))")
+    print("═" * 60)
+
+    if not matched:
+        print(f"\n  No findings at {label} level or above.\n")
+        return
+
+    for f in matched:
+        print()
+        _print_finding(f, indent=2)
+
+
+def _print_filter_section_multiscan(scan_results: list[dict], threshold: str | None) -> None:
+    if threshold is None:
+        return
+
+    label = threshold.upper()
+    matched: list[tuple[str, dict]] = []
+    for result in scan_results:
+        for f in result.get("findings", []):
+            if meets_threshold(f, label):
+                matched.append((result["name"], f))
+
+    print("\n" + "═" * 60)
+    print(f"  Filter: {label} and above  ({len(matched)} finding(s))")
+    print("═" * 60)
+
+    if not matched:
+        print(f"\n  No findings at {label} level or above.\n")
+        return
+
+    current_project = None
+    for project_name, f in matched:
+        if project_name != current_project:
+            current_project = project_name
+            print(f"\n  {'▶'} {project_name}")
+        print()
+        _print_finding(f, indent=4)

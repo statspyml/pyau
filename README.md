@@ -33,6 +33,12 @@ pyvulscan pyproject.toml --json
 
 # Exit with code 1 if vulnerabilities found (CI gate)
 pyvulscan pyproject.toml --exit-code
+
+# Add a filtered summary section at the end (HIGH and CRITICAL only)
+pyvulscan pyproject.toml --filter HIGH
+
+# Filter from MEDIUM and above
+pyvulscan pyproject.toml --filter MEDIUM
 ```
 
 ### Multiple projects (multiscan)
@@ -49,6 +55,9 @@ pyvulscan multiscan projects.json --json
 
 # CI gate: exit 1 if any project has vulnerabilities
 pyvulscan multiscan projects.json --exit-code
+
+# Add a filtered summary section grouped by project (HIGH and CRITICAL only)
+pyvulscan multiscan projects.json --filter HIGH
 ```
 
 #### Config file formats
@@ -82,6 +91,14 @@ projects = [
 ```
 
 Example files are available in the repository root: `multiscan.example.json`, `multiscan.example.yaml`, `multiscan.example.py`.
+
+### Severity filter
+
+The `--filter LEVEL` option appends a dedicated section at the end of the report listing only findings at or above the chosen severity. The full report is always shown — the filter section is additive.
+
+Accepted levels (from lowest to highest): `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`.
+
+Without `--filter`, the section is omitted. Works in both single-project and multiscan modes; in multiscan, findings are grouped by project inside the filter section.
 
 ## How it works
 

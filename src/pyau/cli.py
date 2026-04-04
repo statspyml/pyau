@@ -6,6 +6,8 @@ from pyau.osv.processor import process_results
 from pyau.parsers import detect_and_parse
 from pyau.report import print_json_report, print_multiscan_json_report, print_multiscan_report, print_report
 
+_SEVERITY_LEVELS = ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -44,6 +46,17 @@ def build_parser() -> argparse.ArgumentParser:
             "not transitive deps. Requires a pyproject.toml alongside the lockfile."
         ),
     )
+    parser.add_argument(
+        "--filter",
+        dest="filter_threshold",
+        metavar="LEVEL",
+        choices=_SEVERITY_LEVELS,
+        help=(
+            "Add a summary section at the end of the report showing only findings "
+            "at or above this severity level (LOW, MEDIUM, HIGH, CRITICAL). "
+            "The full report is always shown."
+        ),
+    )
     return parser
 
 
@@ -72,6 +85,17 @@ def build_multiscan_parser() -> argparse.ArgumentParser:
         "--exit-code",
         action="store_true",
         help="Exit with code 1 if any vulnerabilities are found (useful in CI)",
+    )
+    parser.add_argument(
+        "--filter",
+        dest="filter_threshold",
+        metavar="LEVEL",
+        choices=_SEVERITY_LEVELS,
+        help=(
+            "Add a summary section at the end of the report showing only findings "
+            "at or above this severity level (LOW, MEDIUM, HIGH, CRITICAL). "
+            "The full report is always shown."
+        ),
     )
     return parser
 
@@ -108,7 +132,7 @@ def main() -> None:
     if args.json:
         print_json_report(findings)
     else:
-        print_report(findings, packages)
+        print_report(findings, packages, filter_threshold=args.filter_threshold)
 
     # 5. CI-friendly exit code
     if args.exit_code and findings:
@@ -132,7 +156,7 @@ def _run_multiscan(argv: list[str]) -> None:
     if args.json:
         print_multiscan_json_report(scan_results)
     else:
-        print_multiscan_report(scan_results)
+        print_multiscan_report(scan_results, filter_threshold=args.filter_threshold)
 
     if args.exit_code and any(r["vulnerabilities_found"] > 0 for r in scan_results):
         sys.exit(1)

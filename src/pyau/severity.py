@@ -1,3 +1,28 @@
+SEVERITY_ORDER: dict[str, int] = {
+    "NONE": 0,
+    "LOW": 1,
+    "MEDIUM": 2,
+    "HIGH": 3,
+    "CRITICAL": 4,
+    "UNKNOWN": -1,
+}
+
+
+def severity_label(finding: dict) -> str:
+    """Return the severity label string for a finding dict."""
+    sev = finding.get("severity", {})
+    if isinstance(sev, dict):
+        return sev.get("label", "UNKNOWN").upper()
+    return "UNKNOWN"
+
+
+def meets_threshold(finding: dict, threshold: str) -> bool:
+    """Return True if the finding's severity is >= threshold."""
+    threshold_rank = SEVERITY_ORDER.get(threshold.upper(), -1)
+    finding_rank = SEVERITY_ORDER.get(severity_label(finding), -1)
+    return finding_rank >= threshold_rank and finding_rank >= 0
+
+
 def extract_severity(vuln: dict) -> dict:
     """Extract CVSS severity info from an OSV vuln entry.
     Returns a dict: {type, vector, score, label}.
