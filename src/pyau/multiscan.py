@@ -5,6 +5,8 @@ from __future__ import annotations
 import importlib.util
 import json
 import sys
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 from pyau.osv.client import query_osv_batch
@@ -182,21 +184,41 @@ def scan_project(project: dict) -> dict:
 
 
 def run_multiscan(projects: list[dict]) -> list[dict]:
-    """Scan all projects and return a list of per-project result dicts."""
-    scan_results = []
-    for i, project in enumerate(projects, 1):
-        label = project.get("name") or Path(project["path"]).name
-        print(f"\n[{i}/{len(projects)}] Scanning: {label}  ({project['path']})")
-        result = scan_project(project)
-        if result["error"]:
-            print(f"  ! Error: {result['error']}")
-        else:
-            print(
-                f"  Packages: {result['packages_scanned']}  "
-                f"Vulnerabilities: {result['vulnerabilities_found']}"
-            )
-        scan_results.append(result)
-    return scan_results
+    """Scan all projects in parallel and return a list of per-project result dicts."""
+    total = len(projects)
+    ordered: list[dict | None] = [None] * total
+    completed_count = 0
+    lock = threading.Lock()
+
+    print(f"Scanning {total} project(s) in parallel...\n")
+
+    def _scan(index: int, project: dict) -> tuple[int, dict]:
+        return index, scan_project(project)
+
+    with ThreadPoolExecutor() as executor:
+        futures = {
+            executor.submit(_scan, i, project): project
+            for i, project in enumerate(projects)
+        }
+        for future in as_completed(futures):
+            idx, result = future.result()
+            ordered[idx] = result
+
+            with lock:
+                completed_count += 1
+                n = completed_count
+
+            label = result["name"]
+            if result["error"]:
+                print(f"  [{n}/{total}] ✗ {label} — {result['error']}")
+            else:
+                print(
+                    f"  [{n}/{total}] ✓ {label} — "
+                    f"{result['packages_scanned']} pkgs, "
+                    f"{result['vulnerabilities_found']} vulns"
+                )
+
+    return [r for r in ordered if r is not None]
 
 
 # ── helpers ───────────────────────────────────────────────────────────────────
