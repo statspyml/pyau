@@ -13,3 +13,5 @@ wheels/
 .mcp.json
 
 multiscan_example.json
+
+*.sh
