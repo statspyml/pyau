@@ -1,31 +1,35 @@
-name: Publish to PyPI
-
 on:
   push:
-    branches:
-      - main
+    tags: ["v*"]
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --dev
+      - run: uv run pytest -v
+
   publish:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # necessário para o bump-my-version ler as tags
+          fetch-depth: 0
+
+      - name: Check if tag is on main
+        run: |
+          git fetch origin main
+          git merge-base --is-ancestor ${{ github.sha }} origin/main || exit 1
 
       - uses: astral-sh/setup-uv@v5
-
-      - name: Install deps
-        run: uv sync --dev
-
-      - name: Run tests
-        run: uv run pytest -v
-
+      - run: uv sync --dev
       - name: Build
         run: |
           rm -rf dist/
           uv build
-
       - name: Publish
         run: uv publish
         env:
