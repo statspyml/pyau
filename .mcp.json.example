@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "pyvulscan": {
+      "command": "pyvulscan-mcp"
+    }
+  }
+}

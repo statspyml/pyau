@@ -27,6 +27,7 @@ Issues = "https://github.com/statspyml/pyau/issues"
 
 [project.scripts]
 pyvulscan = "pyau.cli:main"
+pyvulscan-mcp = "pyau.mcp.server:main"
 
 [project.optional-dependencies]
 service = [
