@@ -1,0 +1,58 @@
+name: Feature Request
+description: Suggest a new feature or improvement for pyvulscan
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement! Please describe your idea clearly so we can evaluate it.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or motivation
+      description: What problem does this solve? What's missing or frustrating today?
+      placeholder: "e.g. When scanning large projects, it's hard to focus on the most critical issues because..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Describe the feature you'd like. Include example CLI usage if applicable.
+      placeholder: |
+        e.g. Add a --min-severity flag so users can filter findings directly in the main report:
+
+          pyvulscan pyproject.toml --min-severity HIGH
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any other approaches you considered and why you prefer your proposal.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - CLI / argparse
+        - Parsers (uv, poetry, requirements)
+        - OSV API / vulnerability data
+        - Report / output formatting
+        - Multiscan
+        - MCP server
+        - CI/CD integration
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Links, references, screenshots, or anything else relevant.

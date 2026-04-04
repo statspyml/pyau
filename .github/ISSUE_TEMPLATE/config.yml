@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/statspyml/pyau/blob/main/CONTRIBUTING.md#security-vulnerabilities
+    about: Do not open a public issue for security vulnerabilities — see our responsible disclosure process.
+  - name: Question or discussion
+    url: https://github.com/statspyml/pyau/discussions
+    about: For general questions, use GitHub Discussions instead of opening an issue.

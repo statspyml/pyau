@@ -5,6 +5,8 @@
 [![Python](https://img.shields.io/pypi/pyversions/pyvulscan)](https://pypi.org/project/pyvulscan/)
 [![License](https://img.shields.io/github/license/statspyml/pyau)](LICENSE)
 [![Downloads](https://img.shields.io/pypi/dm/pyvulscan)](https://pypi.org/project/pyvulscan/)
+![PyPI - Status](https://img.shields.io/pypi/status/pyvulscan)
+
 
 Vulnerability scanner for Python dependencies using the [OSV API](https://osv.dev/).
 
