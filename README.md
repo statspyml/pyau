@@ -16,6 +16,12 @@ Supports `uv.lock`, `poetry.lock`, `pyproject.toml`, and `requirements.txt` — 
 
 ```bash
 pip install pyvulscan
+
+# or with uv tool
+uv tool install pyvulscan
+
+# or with pipx
+pipx install pyvulscan
 ```
 
 ## Usage
