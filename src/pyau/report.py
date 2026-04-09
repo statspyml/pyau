@@ -3,6 +3,41 @@ import json
 from pyau.severity import meets_threshold, severity_label
 
 
+def print_fix_report(fix_results: list[dict]) -> None:
+    """Exibe o resultado do dry-run de fix para cada pacote."""
+    total = len(fix_results)
+    resolved = sum(1 for r in fix_results if r["success"] is True)
+    conflicts = sum(1 for r in fix_results if r["success"] is False)
+    no_fix    = sum(1 for r in fix_results if r["success"] is None)
+
+    print("\n" + "═" * 60)
+    print("  pyau — Fix Dry-run Report")
+    print("═" * 60)
+    print(f"  Packages checked : {total}")
+    print(f"  Resolves cleanly : {resolved}")
+    print(f"  Conflicts        : {conflicts}")
+    print(f"  No fix available : {no_fix}")
+    print("═" * 60)
+
+    for r in fix_results:
+        package     = r["package"]
+        fix_version = r.get("fix_version") or "?"
+        success     = r["success"]
+        output      = r.get("output", "").strip()
+
+        if success is True:
+            status = "✅  resolves cleanly"
+        elif success is False:
+            first_line = output.splitlines()[0] if output else "conflict"
+            status = f"❌  {first_line}"
+        else:
+            status = "⚠️   no fix version available"
+
+        print(f"\n  {package:<20} →  {fix_version:<12}  {status}")
+
+    print()
+
+
 def print_multiscan_report(scan_results: list[dict], filter_threshold: str | None = None) -> None:
     total_projects = len(scan_results)
     total_vulns = sum(r["vulnerabilities_found"] for r in scan_results)

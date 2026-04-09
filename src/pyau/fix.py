@@ -35,9 +35,9 @@ def _dry_run_fix(tool: str, package: str, fix_version: str) -> dict:
     pkg_spec = f"{package}=={fix_version}"
 
     commands = {
-        "uv": ["uv", "add", pkg_spec, "--dry-run"],
+        "uv":     ["uv", "pip", "install", pkg_spec, "--dry-run"],
         "poetry": ["poetry", "add", pkg_spec, "--dry-run"],
-        "pip": ["pip", "install", pkg_spec, "--dry-run"],
+        "pip":    ["pip", "install", pkg_spec, "--dry-run"],
     }
 
     cmd = commands.get(tool)
@@ -61,4 +61,37 @@ def _dry_run_fix(tool: str, package: str, fix_version: str) -> dict:
 
 def run_fix(findings: list[dict], project_path: str) -> list[dict]:
     """Orquestra o dry-run de fix para todos os findings."""
-    # TODO:
+    tool = _detect_tool(project_path)
+    if tool is None:
+        return []
+
+    results = []
+    seen = set()
+
+    for finding in findings:
+        package = finding["package"]
+        current_version = finding["version"]
+        fixed_version = finding.get("fixed_versions", [])
+
+        fix_version = _select_fix_version(current_version, fixed_version)
+        if fix_version is None:
+            results.append(
+                {
+                    "package": package,
+                    "fix_version": None,
+                    "success": None,
+                    "output": "No fix version available",
+                    "tool": tool,
+                },
+            )
+            continue
+
+        key = (package, fix_version)
+        if key in seen:
+            continue
+        seen.add(key)
+
+        result = _dry_run_fix(tool, package, fix_version)
+        results.append(result)
+
+    return results

@@ -1,10 +1,11 @@
 import argparse
 import sys
+from pathlib import Path
 
 from pyau.osv.client import query_osv_batch
 from pyau.osv.processor import process_results
 from pyau.parsers import detect_and_parse
-from pyau.report import print_json_report, print_multiscan_json_report, print_multiscan_report, print_report
+from pyau.report import print_fix_report, print_json_report, print_multiscan_json_report, print_multiscan_report, print_report
 
 _SEVERITY_LEVELS = ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
 
@@ -56,6 +57,12 @@ def build_parser() -> argparse.ArgumentParser:
             "at or above this severity level (LOW, MEDIUM, HIGH, CRITICAL). "
             "The full report is always shown."
         ),
+    )
+    parser.add_argument(
+        "--fix-dry-run",
+        action="store_true",
+        dest="fix_dry_run",
+        help="Test if suggested fix versions resolve without conflicts (dry-run, no files are modified).",
     )
     return parser
 
@@ -134,7 +141,14 @@ def main() -> None:
     else:
         print_report(findings, packages, filter_threshold=args.filter_threshold)
 
-    # 5. CI-friendly exit code
+    # 5. Fix dry-run
+    if args.fix_dry_run:
+        from pyau.fix import run_fix
+        project_path = str(Path(args.file).parent)
+        fix_results = run_fix(findings, project_path)
+        print_fix_report(fix_results)
+
+    # 6. CI-friendly exit code
     if args.exit_code and findings:
         sys.exit(1)
 
