@@ -1,6 +1,6 @@
 [project]
 name = "pyvulscan"
-version = "0.1.7"
+version = "0.1.8"
 description = "Vulnerability scanner for Python dependencies using the OSV API"
 readme = "README.md"
 license = "MIT"
@@ -82,7 +82,7 @@ dev = [
 package = true
 
 [tool.bumpversion]
-current_version = "0.1.7"
+current_version = "0.1.8"
 commit = true
 tag = true
 
