@@ -53,6 +53,9 @@ pyvulscan pyproject.toml --filter HIGH
 
 # Filter from MEDIUM and above
 pyvulscan pyproject.toml --filter MEDIUM
+
+# Check if suggested fix versions resolve without conflicts (dry-run, no files modified)
+pyvulscan uv.lock --fix-dry-run
 ```
 
 ### Multiple projects (multiscan)
@@ -113,6 +116,30 @@ The `--filter LEVEL` option appends a dedicated section at the end of the report
 Accepted levels (from lowest to highest): `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`.
 
 Without `--filter`, the section is omitted. Works in both single-project and multiscan modes; in multiscan, findings are grouped by project inside the filter section.
+
+### Fix dry-run
+
+The `--fix-dry-run` flag tests whether the suggested fix versions can be applied without dependency conflicts — **no files are modified**.
+
+For each vulnerability found, it:
+1. Selects the lowest fix version higher than the currently installed version
+2. Runs `uv pip install <package>==<fix_version> --dry-run` (or `poetry add` / `pip install` depending on the project)
+3. Reports whether the resolution succeeds or produces a conflict
+
+```
+════════════════════════════════════════════════════════════
+  pyau — Fix Dry-run Report
+════════════════════════════════════════════════════════════
+  Packages checked : 1
+  Resolves cleanly : 1
+  Conflicts        : 0
+  No fix available : 0
+════════════════════════════════════════════════════════════
+
+  cryptography         →  46.0.7        ✅  resolves cleanly
+```
+
+> Applying the fix (editing `pyproject.toml` / lockfile) is planned for a future `--fix-apply` flag.
 
 ## How it works
 
