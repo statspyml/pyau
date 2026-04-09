@@ -61,4 +61,4 @@ def _dry_run_fix(tool: str, package: str, fix_version: str) -> dict:
 
 def run_fix(findings: list[dict], project_path: str) -> list[dict]:
     """Orquestra o dry-run de fix para todos os findings."""
-
+    # TODO:
