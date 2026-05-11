@@ -1,11 +1,18 @@
 import argparse
 import sys
+from importlib.metadata import version
 from pathlib import Path
 
 from pyau.osv.client import query_osv_batch
 from pyau.osv.processor import process_results
 from pyau.parsers import detect_and_parse
-from pyau.report import print_fix_report, print_json_report, print_multiscan_json_report, print_multiscan_report, print_report
+from pyau.report import (
+    print_fix_report,
+    print_json_report,
+    print_multiscan_json_report,
+    print_multiscan_report,
+    print_report,
+)
 
 _SEVERITY_LEVELS = ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
 
@@ -64,6 +71,13 @@ def build_parser() -> argparse.ArgumentParser:
         dest="fix_dry_run",
         help="Test if suggested fix versions resolve without conflicts (dry-run, no files are modified).",
     )
+
+    parser.add_argument(
+        "--version",
+        "-V",
+        action="version",
+        version=f"%(prog)s {version('pyvulscan')}",
+    )
     return parser
 
 
@@ -73,7 +87,7 @@ def build_multiscan_parser() -> argparse.ArgumentParser:
         description=(
             "Scan multiple projects for vulnerabilities using a config file.\n\n"
             "The config file lists directories to scan. Supported formats:\n"
-            "  .json  — list or {\"projects\": [...]}\n"
+            '  .json  — list or {"projects": [...]}\n'
             "  .yaml  — list or projects: [...]\n"
             "  .py    — defines a top-level 'projects' list"
         ),
