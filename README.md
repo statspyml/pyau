@@ -59,8 +59,10 @@ pyvulscan uv.lock --fix-dry-run
 
 # Apply fixes for HIGH and CRITICAL vulnerabilities directly to the manifest
 pyvulscan pyproject.toml --fix
-pyvulscan uv.lock --fix
 pyvulscan requirements.txt --fix
+
+# Edits the adjacent pyproject.toml (lock files are not modified directly)
+pyvulscan uv.lock --fix
 ```
 
 ### Multiple projects (multiscan)
