@@ -38,6 +38,46 @@ def print_fix_report(fix_results: list[dict]) -> None:
     print()
 
 
+def print_apply_fix_report(apply_results: list[dict]) -> None:
+    """Exibe o resultado do --fix (edição real dos arquivos de manifesto)."""
+    if not apply_results:
+        print("\n  No changes to apply.")
+        return
+
+    result = apply_results[0]
+    if "error" in result:
+        print(f"\n  ✗ {result['error']}")
+        return
+
+    manifest = result.get("manifest", "?")
+    lock_hint = result.get("lock_hint")
+    changes = result.get("changes", [])
+
+    applied = [c for c in changes if c.get("applied")]
+    not_applied = [c for c in changes if not c.get("applied")]
+
+    print("\n" + "═" * 60)
+    print("  pyau — Fix Report")
+    print("═" * 60)
+    print(f"  Manifest : {manifest}")
+    print(f"  Applied  : {len(applied)}")
+    print(f"  Skipped  : {len(not_applied)}")
+    print("═" * 60)
+
+    for c in applied:
+        print(f"\n  ✅  {c['package']:<20}  {c['old_version']}  →  {c['new_version']}")
+
+    for c in not_applied:
+        reason = c.get("reason", "unknown")
+        ver = c.get("new_version") or "—"
+        print(f"\n  ⚠️   {c['package']:<20}  fix={ver:<12}  ({reason})")
+
+    if lock_hint:
+        print(f"\n  Lock file outdated — run:  {lock_hint}")
+
+    print()
+
+
 def print_multiscan_report(scan_results: list[dict], filter_threshold: str | None = None) -> None:
     total_projects = len(scan_results)
     total_vulns = sum(r["vulnerabilities_found"] for r in scan_results)
