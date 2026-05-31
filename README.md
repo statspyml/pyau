@@ -56,6 +56,11 @@ pyvulscan pyproject.toml --filter MEDIUM
 
 # Check if suggested fix versions resolve without conflicts (dry-run, no files modified)
 pyvulscan uv.lock --fix-dry-run
+
+# Apply fixes for HIGH and CRITICAL vulnerabilities directly to the manifest
+pyvulscan pyproject.toml --fix
+pyvulscan uv.lock --fix
+pyvulscan requirements.txt --fix
 ```
 
 ### Multiple projects (multiscan)
@@ -139,7 +144,32 @@ For each vulnerability found, it:
   cryptography         →  46.0.7        ✅  resolves cleanly
 ```
 
-> Applying the fix (editing `pyproject.toml` / lockfile) is planned for a future `--fix-apply` flag.
+### Fix
+
+The `--fix` flag applies the recommended versions for **HIGH and CRITICAL** vulnerabilities directly to your manifest file — `pyproject.toml` or `requirements.txt`.
+
+- Version specifiers are preserved (`==`, `>=`, `^`, `~`, etc.)
+- If you pass a lock file (`uv.lock`, `poetry.lock`), the adjacent `pyproject.toml` is edited instead
+- When multiple vulnerabilities affect the same package, the highest required fix version is used
+- After applying, run `uv lock` or `poetry lock` to update the lock file
+
+```
+════════════════════════════════════════════════════════════
+  pyau — Fix Report
+════════════════════════════════════════════════════════════
+  Manifest : pyproject.toml
+  Applied  : 2
+  Skipped  : 1
+════════════════════════════════════════════════════════════
+
+  ✅  django                3.2.0  →  3.2.1
+  ✅  requests              2.27.0  →  2.28.1
+  ⚠️   pillow                fix=—             (No fix version available upstream)
+
+  Lock file outdated — run:  uv lock
+```
+
+> **Current limitation:** `--fix` only updates packages declared directly in the manifest. Transitive (indirect) dependencies are not modified — support for those is planned for a future release.
 
 ## How it works
 
