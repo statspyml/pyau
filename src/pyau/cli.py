@@ -7,6 +7,7 @@ from pyau.osv.client import query_osv_batch
 from pyau.osv.processor import process_results
 from pyau.parsers import detect_and_parse
 from pyau.report import (
+    print_apply_fix_report,
     print_fix_report,
     print_json_report,
     print_multiscan_json_report,
@@ -70,6 +71,16 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         dest="fix_dry_run",
         help="Test if suggested fix versions resolve without conflicts (dry-run, no files are modified).",
+    )
+    parser.add_argument(
+        "--fix",
+        action="store_true",
+        dest="fix",
+        help=(
+            "Apply recommended versions for HIGH and CRITICAL vulnerabilities directly "
+            "to pyproject.toml or requirements.txt. Lock files are not updated — "
+            "run 'uv lock' or 'poetry lock' afterwards."
+        ),
     )
 
     parser.add_argument(
@@ -162,7 +173,13 @@ def main() -> None:
         fix_results = run_fix(findings, project_path)
         print_fix_report(fix_results)
 
-    # 6. CI-friendly exit code
+    # 6. Apply fix to manifest
+    if args.fix:
+        from pyau.fix import apply_fixes
+        apply_results = apply_fixes(findings, args.file)
+        print_apply_fix_report(apply_results)
+
+    # 7. CI-friendly exit code
     if args.exit_code and findings:
         sys.exit(1)
 
