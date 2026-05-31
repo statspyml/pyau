@@ -54,6 +54,9 @@ pyvulscan pyproject.toml --filter HIGH
 # Filter from MEDIUM and above
 pyvulscan pyproject.toml --filter MEDIUM
 
+# Colored table output
+pyvulscan pyproject.toml --pretty
+
 # Check if suggested fix versions resolve without conflicts (dry-run, no files modified)
 pyvulscan uv.lock --fix-dry-run
 

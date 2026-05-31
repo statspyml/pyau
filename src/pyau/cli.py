@@ -73,6 +73,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Test if suggested fix versions resolve without conflicts (dry-run, no files are modified).",
     )
     parser.add_argument(
+        "--pretty",
+        action="store_true",
+        dest="pretty",
+        help="Rich colored table output (requires 'rich').",
+    )
+    parser.add_argument(
         "--fix",
         action="store_true",
         dest="fix",
@@ -163,6 +169,9 @@ def main() -> None:
     # 4. Report
     if args.json:
         print_json_report(findings)
+    elif args.pretty:
+        from pyau.pretty import print_pretty_report
+        print_pretty_report(findings, packages, filter_threshold=args.filter_threshold)
     else:
         print_report(findings, packages, filter_threshold=args.filter_threshold)
 
@@ -177,7 +186,11 @@ def main() -> None:
     if args.fix:
         from pyau.fix import apply_fixes
         apply_results = apply_fixes(findings, args.file)
-        print_apply_fix_report(apply_results)
+        if args.pretty:
+            from pyau.pretty import print_pretty_apply_fix_report
+            print_pretty_apply_fix_report(apply_results)
+        else:
+            print_apply_fix_report(apply_results)
 
     # 7. CI-friendly exit code
     if args.exit_code and findings:
